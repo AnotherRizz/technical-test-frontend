@@ -73,16 +73,16 @@ export default function ProductsPage() {
     try {
       if (editingProduct) {
         await axios.put("/api/product", { ...editingProduct, ...values });
-        messageApi.success(" Product updated successfully");
+        messageApi.success("Product updated successfully");
       } else {
         await axios.post("/api/product", values);
-        messageApi.success(" Product created successfully");
+        messageApi.success("Product created successfully");
       }
       setIsModalOpen(false);
       fetchProducts();
     } catch (err) {
       console.error(err);
-      messageApi.error(" Failed to save product");
+      messageApi.error("Failed to save product");
     } finally {
       setLoading(false);
     }
@@ -106,11 +106,13 @@ export default function ProductsPage() {
       render: (record: Product) => (
         <Space>
           <Button
+            type="default"
             onClick={() => {
               setEditingProduct(record);
               form.setFieldsValue(record);
               setIsModalOpen(true);
-            }}>
+            }}
+          >
             Edit
           </Button>
         </Space>
@@ -119,71 +121,85 @@ export default function ProductsPage() {
   ];
 
   return (
-    <div style={{ padding: 24 }}>
+    <div className="flex flex-col items-center min-h-screen py-16 px-6 bg-zinc-50 dark:bg-black font-sans">
       {contextHolder}
 
-      <Title level={3}>Product Management</Title>
+      <div className="w-full max-w-5xl">
+        <Title level={3} className="text-black dark:text-zinc-50">
+          Product Management
+        </Title>
 
-      <Space
-        style={{
-          marginBottom: 16,
-          float: "right",
-          position: "relative",
-          zIndex: 10,
-        }}>
-        <Search
-          placeholder="Search product..."
-          onChange={(e) => setSearch(e.target.value)}
-          style={{ width: 300 }}
-          allowClear
+        <Space className="mb-6 w-full justify-between flex-wrap">
+          <Search
+            placeholder="Search product..."
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ maxWidth: 300, width: "100%" }}
+            allowClear
+          />
+          <Button
+            type="primary"
+            className="bg-blue-600 hover:bg-blue-700"
+            onClick={() => {
+              setEditingProduct(null);
+              form.resetFields();
+              setIsModalOpen(true);
+            }}
+          >
+            Create Product
+          </Button>
+        </Space>
+
+        {error && (
+          <div className="text-red-600 dark:text-red-400 mb-4">{error}</div>
+        )}
+
+        <Spin spinning={loading}>
+          <Table
+            rowKey="product_id"
+            columns={columns}
+            dataSource={data}
+            pagination={false}
+            bordered
+            className="bg-white dark:bg-zinc-900"
+          />
+        </Spin>
+
+        <Pagination
+          current={page}
+          total={total}
+          onChange={(p) => setPage(p)}
+          className="mt-6 flex justify-end text-black dark:text-zinc-50"
         />
-        <Button
-          type="primary"
-          onClick={() => {
-            setEditingProduct(null);
-            form.resetFields();
-            setIsModalOpen(true);
-          }}>
-          Create Product
-        </Button>
-      </Space>
-
-      {error && <div style={{ color: "red", marginBottom: 10 }}>{error}</div>}
-
-      <Spin spinning={loading}>
-        <Table
-          rowKey="product_id"
-          columns={columns}
-          dataSource={data}
-          pagination={false}
-        />
-      </Spin>
-
-      <Pagination
-        current={page}
-        total={total}
-        onChange={(p) => setPage(p)}
-        style={{ marginTop: 16 }}
-      />
+      </div>
 
       <Modal
         open={isModalOpen}
         title={editingProduct ? "Edit Product" : "Create Product"}
         onCancel={() => setIsModalOpen(false)}
         onOk={handleSubmit}
-        okText={editingProduct ? "Update" : "Create"}>
+        okText={editingProduct ? "Update" : "Create"}
+        bodyStyle={{ backgroundColor: "#f9f9f9", color: "#000" }}
+      >
         <Form form={form} layout="vertical">
           <Form.Item
             name="product_title"
             label="Title"
-            rules={[{ required: true, message: "Title is required" }]}>
+            rules={[{ required: true, message: "Title is required" }]}
+          >
             <Input />
           </Form.Item>
           <Form.Item
             name="product_price"
             label="Price"
-            rules={[{ required: true, message: "Price is required" }]}>
-            <InputNumber min={0} style={{ width: "100%" }} />
+            rules={[{ required: true, message: "Price is required" }]}
+          >
+            <InputNumber
+              min={0}
+              style={{ width: "100%" }}
+              formatter={(value) =>
+                `Rp ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+              }
+            />
           </Form.Item>
           <Form.Item name="product_description" label="Description">
             <Input.TextArea rows={3} />
