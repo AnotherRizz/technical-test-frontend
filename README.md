@@ -21,7 +21,7 @@ Frontend calls internal **Next.js API routes** as a proxy to an external API.
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/yourusername/product-management-app.git
+git clone https://github.com/AnotherRizz/technical-test-frontend.git
 cd product-management-app
 
 2.  **Install dependencies**
